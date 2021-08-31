@@ -2,16 +2,20 @@
 #include <iostream>
 #include "file_io.h"
 bool write_to_file(std::string& filename, File& file) {
-    std::ofstream new_file(filename);
+	if (filename != "")
+	{
+		std::ofstream new_file(filename);
 
-    for (auto iter = file.lines.begin(); iter != file.lines.end(); iter++) {
-        for (const auto& ch: *iter)
-            new_file << ch;
-    }
-    new_file.close();
-    if (new_file.bad())
-        return false;
-    return true;
+		for (auto iter = file.lines.begin(); iter != file.lines.end(); iter++) {
+			for (const auto& ch : *iter)
+				new_file << ch;
+		}
+		new_file.close();
+		if (new_file.bad())
+			return false;
+		return true;
+	}
+	return false;
 }
 
 File open_file(std::string& filename) {

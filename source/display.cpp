@@ -103,8 +103,8 @@ void clear_directory_status() {
 }
 
 void print_directory_status(std::string filename) {
-    clear_directory_status();
-    std::cout << "Current directory: " << filename;
+    /*clear_directory_status();
+    std::cout << "Current directory: " << filename;*/
 
 }
 

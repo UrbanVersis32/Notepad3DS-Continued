@@ -53,9 +53,9 @@ int main(int argc, char **argv)
 		SwkbdButton button = SWKBD_BUTTON_NONE;
 		bool didit = false;
 
-        swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, -1);
+        swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, -1);
         swkbdSetValidation(&swkbd, SWKBD_ANYTHING, SWKBD_ANYTHING, 2);
-        swkbdSetFeatures(&swkbd, SWKBD_DARKEN_TOP_SCREEN);
+        swkbdSetFeatures(&swkbd, SWKBD_ALLOW_HOME);
 
         if (kDown & KEY_A) {
             //Select current line for editing
@@ -133,23 +133,31 @@ int main(int argc, char **argv)
             memset(mybuf, '\0', BUFFER_SIZE);
 
             //Get file name
-           
-            swkbdSetHintText(&swkbd, "Input filename here."); 
+            swkbdSetHintText(&swkbd, "Input filename here.");
+			swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, SWKBD_ANYTHING, 2);
             button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+
             std::string filename = "";
             for (int i = 0; mybuf[i] != '\0'; i++)
                 filename.push_back(mybuf[i]);
 
-            //Write out characters to file
-            bool success = write_to_file(filename, file);
-            
-            if (success) {
-                print_save_status("File written to " + filename);
-                print_directory_status(filename);
-            } else {
-                print_save_status("Failed to write " + filename);
-            }
+			if (button == SWKBD_BUTTON_RIGHT)
+			{
+				//Write out characters to file
+				bool success = write_to_file(filename, file);
 
+				if (success && filename != "") {
+					print_save_status("File written to " + filename);
+					print_directory_status(filename);
+				}
+				else {
+					print_save_status("Failed to write " + filename);
+				}
+			}
+			else
+			{
+				print_save_status("Saving file cancelled. ");
+			}
         }
 
         if (kDown & KEY_Y) {
@@ -161,33 +169,45 @@ int main(int argc, char **argv)
             memset(mybuf, '\0', BUFFER_SIZE);
 
             //Get file name
-           
-            swkbdSetHintText(&swkbd, "Input filename here."); 
+            swkbdSetHintText(&swkbd, "Input filename here.");
+			swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, SWKBD_ANYTHING, 2);
             button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+
             std::string filename = "";
             for (int i = 0; mybuf[i] != '\0'; i++)
                 filename.push_back(mybuf[i]);
             File oldfile = file;
-            file = open_file(filename);
-            
-            //print functions here seem to crash the program
-            if (file.read_success) {
-                update_screen(file, curr_line);
-                clear_save_status();
-                std::cout << "Successfully opened " << filename << std::endl;
-                clear_directory_status();
-                std::cout << "Current file: " << filename;
-                //print_directory_status(filename);
-                consoleSelect(&topScreen);
-                //print_save_status("Successfully opened " + filename);
-            } else {
-                file = oldfile;
-                update_screen(file, curr_line);
-                clear_save_status();
-                std::cout << "Failed to open " << filename << std::endl;
-                consoleSelect(&topScreen);
-                //print_save_status("Failed to open " + filename);
-            }
+
+			if (button == SWKBD_BUTTON_RIGHT)
+			{
+				file = open_file(filename);
+
+				//print functions here seem to crash the program
+				if (file.read_success) {
+					update_screen(file, curr_line);
+					clear_save_status();
+					std::cout << "Successfully opened " << filename << std::endl;
+					clear_directory_status();
+					std::cout << "Current file: " << filename;
+					//print_directory_status(filename);
+					consoleSelect(&topScreen);
+					//print_save_status("Successfully opened " + filename);
+				}
+				else {
+					file = oldfile;
+					update_screen(file, curr_line);
+					clear_save_status();
+					std::cout << "Failed to open " << filename << std::endl;
+					consoleSelect(&topScreen);
+					//print_save_status("Failed to open " + filename);
+				}
+			}
+			else
+			{
+				consoleSelect(&bottomScreen);
+				std::cout << "\nOpening file cancelled." << std::endl;
+				/*consoleSelect(&topScreen);*/
+			}
         }
 
         if (kDown & KEY_DDOWN) {
@@ -215,7 +235,7 @@ int main(int argc, char **argv)
 
 		if (didit)
 		{
-			if (button != SWKBD_BUTTON_NONE)
+			if (button == SWKBD_BUTTON_RIGHT)
 			{
                 std::vector<char> new_text = char_arr_to_vector(mybuf);
 
@@ -226,7 +246,15 @@ int main(int argc, char **argv)
                     file.edit_line(new_text, curr_line);
                 }
                 update_screen(file, curr_line);
-			} else
+			}
+			else if (button == SWKBD_BUTTON_LEFT)
+			{
+				/*consoleSelect(&bottomScreen);
+				printf("cancelled.");
+				consoleSelect(&topScreen);*/
+			}
+			
+			else
 				printf("swkbd event: %d\n", swkbdGetResult(&swkbd));
 		}
 
