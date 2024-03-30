@@ -33,9 +33,9 @@ SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
 #ROMFS		:=	romfs
-APP_TITLE	:= Notepad3DS
+APP_TITLE	:= Notepad3DS-Continued
 APP_DESCRIPTION	:= Text editor for the Nintendo 3DS console
-APP_AUTHOR 	:= SomeAmountOfGravy
+APP_AUTHOR 	:= SomeAmountOfGravy (Continued by Urban Versis 32)
 
 #---------------------------------------------------------------------------------
 # options for code generation
