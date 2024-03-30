@@ -10,17 +10,18 @@
 #define BUFFER_SIZE 1025    //Notepad's line limit + \0
 #define MAX_BOTTOM_SIZE 28
 
-#define VERSION "Notepad3DS Version 1.1.2"
+#define VERSION "Notepad3DS-Continued Version 1.1.3"
 
 
 PrintConsole topScreen, bottomScreen;
 int scroll = 0;
-bool fast_scroll = false;
 
 void move_down(File file);
 void move_up(File file);
 
 unsigned int curr_line = 0;
+
+bool new_file = false; //Controls whether "save" function asks for file input or uses the current file for save loc
 
 int main(int argc, char **argv)
 {
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
             //Clear buffer
             memset(mybuf, '\0', BUFFER_SIZE);
             //Confirm creating a new file
-            swkbdSetHintText(&swkbd, "Are you sure you want to open a BLANK file? y/n"); 
+            swkbdSetHintText(&swkbd, "Are you sure you want to open a new file? Y/N"); 
             button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
             if (mybuf[0] == 'y') {
                 File blankFile;
@@ -93,6 +94,7 @@ int main(int argc, char **argv)
                 curr_line = 0;
                 scroll = 0;
                 update_screen(file, curr_line);
+                new_file = true;
                 print_save_status("New file created");
             } else
                 print_save_status("No new file created");
@@ -131,11 +133,10 @@ int main(int argc, char **argv)
             //Save current file
             //Clear buffer
             memset(mybuf, '\0', BUFFER_SIZE);
-
-            //Get file name
-            swkbdSetHintText(&swkbd, "Input filename here.");
+            
+			swkbdSetHintText(&swkbd, "Input filename here.");
 			swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, SWKBD_ANYTHING, 2);
-            button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+			button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
 
             std::string filename = "";
             for (int i = 0; mybuf[i] != '\0'; i++)
